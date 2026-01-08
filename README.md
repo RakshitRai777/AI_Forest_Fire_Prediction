@@ -57,13 +57,35 @@ AI-Forest-Fire-Prediction-System/
 - pip package manager
 - Internet connection (for weather and geocoding APIs)
 
+### 📥 Dataset Setup
+
+**Important**: The dataset is not included in this repository due to its large size (88MB+). You need to download it first:
+
+1. **Download the Forest Fire Dataset**:
+   - The dataset contains fire and smoke images with annotations
+   - [Download Link Here] - *Add your actual dataset download link*
+   - Extract and place the `DataSet/` folder in the project root
+
+2. **Dataset Structure**:
+   ```
+   DataSet/
+   ├── Datacluster Fire and Smoke Sample/
+   │   ├── Datacluster Fire and Smoke Sample (1).jpg
+   │   ├── Datacluster Fire and Smoke Sample (10).jpg
+   │   └── ... (100 images total)
+   └── Annotations/
+       ├── Datacluster Fire and Smoke Sample (1).xml
+       ├── Datacluster Fire and Smoke Sample (10).xml
+       └── ... (100 annotation files total)
+   ```
+
 ### Installation
 
 1. **Clone or download the project**
    ```bash
    # If using git
-   git clone <repository-url>
-   cd AI-Forest-Fire-Prediction-System
+   git clone https://github.com/RakshitRai777/AI_Forest_Fire_Prediction.git
+   cd AI_Forest_Fire_Prediction
    ```
 
 2. **Create a virtual environment**
@@ -84,9 +106,13 @@ AI-Forest-Fire-Prediction-System/
 
 4. **Train the ML model**
    ```bash
-   python ml/train_model.py
+   python main.py
    ```
-   This will generate the trained model and feature scaler files.
+   This will:
+   - Load the dataset from the `DataSet/` folder
+   - Train the forest fire detection model
+   - Generate the trained model file `forest_fire_model.pkl`
+   - Show training accuracy and metrics
 
 5. **Run the application**
    ```bash
@@ -151,34 +177,52 @@ Edit `config.py` to adjust:
 
 ### Model Training
 
-The system uses a RandomForestClassifier trained on synthetic data that simulates:
+The system uses a machine learning model trained on fire and smoke images:
 
-- Weather patterns (temperature, humidity, wind, rainfall)
-- Environmental conditions (NDVI, soil moisture, drought index)
-- Historical fire occurrence data
+1. **Dataset**: 100 images of fire and smoke scenes with XML annotations
+2. **Training Script**: Run `python main.py` to train the model
+3. **Model Output**: Generates `forest_fire_model.pkl` for predictions
+
+### Training Process
+
+```bash
+python main.py
+```
+
+This will:
+- Load images from `DataSet/Datacluster Fire and Smoke Sample/`
+- Parse XML annotations from `DataSet/Annotations/`
+- Extract features and train the classifier
+- Save the trained model as `forest_fire_model.pkl`
+- Display training accuracy and performance metrics
 
 ### Features Used
 
-1. **Weather Features**:
-   - Temperature (°C)
-   - Humidity (%)
-   - Wind speed (km/h)
-   - Rainfall (mm)
+1. **Image Features**:
+   - Color histograms (RGB channels)
+   - Texture features (LBP - Local Binary Patterns)
+   - Shape and contour features
+   - Fire-specific color patterns
 
-2. **Environmental Features**:
-   - NDVI (vegetation index)
-   - Soil moisture (%)
-   - Drought index
+2. **Annotation Data**:
+   - Bounding box coordinates
+   - Object labels (fire, smoke)
+   - Confidence scores
 
-3. **Location Features**:
-   - Latitude and longitude
-   - Temporal features (month, day of year)
+### Model Performance
+
+- **Training Accuracy**: Displays during training
+- **Model Type**: RandomForestClassifier (configurable)
+- **Feature Extraction**: Computer vision techniques
+- **Prediction Speed**: Real-time inference
 
 ### Retraining the Model
 
-```bash
-python ml/train_model.py --samples 10000
-```
+To retrain with new data:
+1. Add new images to `DataSet/Datacluster Fire and Smoke Sample/`
+2. Add corresponding XML annotations to `DataSet/Annotations/`
+3. Run `python main.py` to retrain
+4. The new model will overwrite `forest_fire_model.pkl`
 
 ## 🌐 API Endpoints
 
