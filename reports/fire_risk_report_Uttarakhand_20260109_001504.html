@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Fire Risk Assessment - Uttarakhand</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #ffc107;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .risk-level {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ffc107;
+            margin: 10px 0;
+        }
+        .probability {
+            font-size: 1.5em;
+            color: #666;
+            margin: 10px 0;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .data-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .data-label {
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .data-value {
+            font-size: 1.2em;
+            color: #333;
+            margin-top: 5px;
+        }
+        .recommendations {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .recommendations ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .recommendations li {
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .risk-factor {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .factor-bar {
+            width: 100px;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-left: 10px;
+        }
+        .factor-fill {
+            height: 100%;
+            background: #ffc107;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Forest Fire Risk Assessment</h1>
+            <h2>Uttarakhand</h2>
+            <p>Uttarakhand, India</p>
+            <p>Coordinates: 30.0417, 79.0897</p>
+            <div class="risk-level">
+                ⚡ MODERATE
+            </div>
+            <div class="probability">
+                Fire Probability: 27.4%
+            </div>
+            <p>Assessment Date: 2026-01-09 00:15:04 UTC</p>
+        </div>
+
+        <div class="section">
+            <h2>🌤️ Current Weather Conditions</h2>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">Temperature</div>
+                    <div class="data-value">1.5°C</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Humidity</div>
+                    <div class="data-value">84.0%</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Wind Speed</div>
+                    <div class="data-value">6.5 km/h</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Rainfall</div>
+                    <div class="data-value">0.0 mm</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🌿 Environmental Conditions</h2>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">Vegetation Type</div>
+                    <div class="data-value">Grassland/Shrubland</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">NDVI Index</div>
+                    <div class="data-value">0.343</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Soil Moisture</div>
+                    <div class="data-value">89.6%</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Drought Index</div>
+                    <div class="data-value">0.268</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Risk Factors Analysis</h2>
+            <div class="risk-factor">
+                <span>Temperature Factor</span>
+                <div class="factor-bar">
+                    <div class="factor-fill" style="width: 10.0%"></div>
+                </div>
+                <span>0.10</span>
+            </div>
+            <div class="risk-factor">
+                <span>Humidity Factor</span>
+                <div class="factor-bar">
+                    <div class="factor-fill" style="width: 10.0%"></div>
+                </div>
+                <span>0.10</span>
+            </div>
+            <div class="risk-factor">
+                <span>Wind Factor</span>
+                <div class="factor-bar">
+                    <div class="factor-fill" style="width: 10.0%"></div>
+                </div>
+                <span>0.10</span>
+            </div>
+            <div class="risk-factor">
+                <span>Rainfall Factor</span>
+                <div class="factor-bar">
+                    <div class="factor-fill" style="width: 100.0%"></div>
+                </div>
+                <span>1.00</span>
+            </div>
+            <div class="risk-factor">
+                <span>Vegetation Factor</span>
+                <div class="factor-bar">
+                    <div class="factor-fill" style="width: 50.0%"></div>
+                </div>
+                <span>0.50</span>
+            </div>
+            <div class="risk-factor">
+                <span>Drought Factor</span>
+                <div class="factor-bar">
+                    <div class="factor-fill" style="width: 26.75482029082089%"></div>
+                </div>
+                <span>0.27</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ Safety Recommendations</h2>
+            <div class="recommendations">
+                <ul>
+                    <li>⚡ MODERATE FIRE RISK - Be cautious</li><li>Supervise any outdoor fires</li><li>Clear dry vegetation around property</li><li>Have fire safety equipment ready</li><li>Dry conditions - Extra vigilance required</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Risk Interpretation</h2>
+            <p>Moderate fire risk conditions exist. Some fire behavior is possible, especially in dry, windy areas. Use caution with outdoor activities and ensure proper fire suppression equipment is available.</p>
+        </div>
+
+        <div class="footer">
+            <p>Report generated by AI Forest Fire Prediction System</p>
+            <p>Generated: 2026-01-09 00:15:04</p>
+        </div>
+    </div>
+</body>
+</html>
+            

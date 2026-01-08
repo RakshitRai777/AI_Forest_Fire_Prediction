@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Fire Risk Report{% endblock %}
+
+{% block content %}
+<section class="container mt-4">
+    <div id="reportContent">
+        <!-- Report content will be dynamically loaded here -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span>📊</span>
+                    Loading Report...
+                </h2>
+            </div>
+            <div class="text-center p-4">
+                <div class="spinner"></div>
+                <p>Generating your fire risk report...</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// This template is designed to display reports dynamically
+// The actual report content would be loaded via JavaScript or passed from Flask
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Get report data from URL parameters or session storage
+    const urlParams = new URLSearchParams(window.location.search);
+    const reportData = urlParams.get('data');
+    
+    if (reportData) {
+        try {
+            const data = JSON.parse(decodeURIComponent(reportData));
+            displayReport(data);
+        } catch (error) {
+            console.error('Error parsing report data:', error);
+            showError('Invalid report data');
+        }
+    } else {
+        // Check if report data is in session storage
+        const storedData = sessionStorage.getItem('fireReportData');
+        if (storedData) {
+            const data = JSON.parse(storedData);
+            displayReport(data);
+            sessionStorage.removeItem('fireReportData'); // Clear after use
+        } else {
+            showError('No report data available. Please generate a report first.');
+        }
+    }
+});
+
+function displayReport(data) {
+    const reportContent = document.getElementById('reportContent');
+    
+    // This would render the full HTML report
+    // For now, showing a placeholder
+    reportContent.innerHTML = `
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span>📊</span>
+                    Forest Fire Risk Assessment Report
+                </h2>
+            </div>
+            
+            <div class="text-center mb-4">
+                ${formatRiskLevel(data.risk_level)}
+                <h3>Fire Probability: ${data.probability}</h3>
+                <p class="text-muted">Assessment completed at ${data.timestamp}</p>
+            </div>
+            
+            <div class="result-grid">
+                <div class="result-item">
+                    <h3><span>📍</span> Location Information</h3>
+                    <div>
+                        <strong>City:</strong> ${data.location.city}<br>
+                        ${data.location.state ? `<strong>State:</strong> ${data.location.state}<br>` : ''}
+                        ${data.location.country ? `<strong>Country:</strong> ${data.location.country}<br>` : ''}
+                        <strong>Coordinates:</strong> ${data.location.latitude.toFixed(4)}, ${data.location.longitude.toFixed(4)}
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h3><span>🌤️</span> Weather Conditions</h3>
+                    <div>
+                        <strong>Temperature:</strong> ${data.weather.temperature}<br>
+                        <strong>Humidity:</strong> ${data.weather.humidity}<br>
+                        <strong>Wind Speed:</strong> ${data.weather.wind_speed}<br>
+                        <strong>Rainfall:</strong> ${data.weather.rainfall}
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h3><span>🌿</span> Environmental Conditions</h3>
+                    <div>
+                        <strong>Type:</strong> ${data.vegetation.type}<br>
+                        <strong>NDVI:</strong> ${data.vegetation.ndvi}<br>
+                        <strong>Soil Moisture:</strong> ${data.vegetation.soil_moisture}<br>
+                        <strong>Drought Index:</strong> ${data.vegetation.drought_index}
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h3><span>📈</span> Risk Analysis</h3>
+                    <div>
+                        <div class="mb-2">
+                            <strong>Temperature Factor:</strong> ${createProgressBar(data.factors.temperature)}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Humidity Factor:</strong> ${createProgressBar(data.factors.humidity)}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Wind Factor:</strong> ${createProgressBar(data.factors.wind)}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Rainfall Factor:</strong> ${createProgressBar(data.factors.rainfall)}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Vegetation Factor:</strong> ${createProgressBar(data.factors.vegetation)}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Drought Factor:</strong> ${createProgressBar(data.factors.drought)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendations">
+                <h3><span>⚠️</span> Safety Recommendations</h3>
+                <ul>
+                    ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+            </div>
+            
+            <div class="btn-group mt-4">
+                <button onclick="window.print()" class="btn btn-primary">
+                    <span>🖨️</span>
+                    Print Report
+                </button>
+                <button onclick="downloadPDF()" class="btn btn-secondary">
+                    <span>📄</span>
+                    Download PDF
+                </button>
+                <button onclick="shareReport()" class="btn btn-outline">
+                    <span>🔗</span>
+                    Share Report
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function downloadPDF() {
+    // This would integrate with a PDF generation library
+    // For now, using browser print functionality
+    window.print();
+}
+
+function shareReport() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Forest Fire Risk Assessment Report',
+            text: 'Check out this fire risk assessment report',
+            url: window.location.href
+        }).catch(err => console.log('Error sharing:', err));
+    } else {
+        // Fallback: copy link to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showSuccess('Report link copied to clipboard!');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}AI Forest Fire Prediction System - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1>🔥 AI Forest Fire Prediction System</h1>
+        <p>Advanced machine learning meets real-time weather data to predict forest fire risks</p>
+        <div class="btn-group justify-content-center">
+            <a href="#predict" class="btn btn-primary">Get Prediction</a>
+            <a href="{{ url_for('chat_page') }}" class="btn btn-outline">AI Assistant</a>
+        </div>
+    </div>
+</section>
+
+<!-- Prediction Form -->
+<section id="predict" class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <span>📍</span>
+                Location Input
+            </h2>
+        </div>
+        
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="location" class="form-label">
+                    Enter Location
+                </label>
+                <input 
+                    type="text" 
+                    id="location" 
+                    name="location" 
+                    class="form-control" 
+                    placeholder="Enter city name (e.g., 'Los Angeles') or coordinates (e.g., '34.0522,-118.2437')"
+                    required
+                >
+                <div class="form-hint">
+                    💡 You can enter a city name or latitude,longitude coordinates
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">
+                    <span>🔥</span>
+                    Predict Fire Risk
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                    <span>🔄</span>
+                    Clear
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Analyzing weather data and calculating fire risk...</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results" class="results-section">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span>📊</span>
+                    Fire Risk Assessment
+                </h2>
+            </div>
+            
+            <div id="riskSummary">
+                <!-- Risk level and probability will be inserted here -->
+            </div>
+            
+            <div class="result-grid">
+                <div class="result-item">
+                    <h3><span>🌤️</span> Weather Conditions</h3>
+                    <div id="weatherInfo">
+                        <!-- Weather data will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h3><span>🌿</span> Environmental Conditions</h3>
+                    <div id="vegetationInfo">
+                        <!-- Vegetation data will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h3><span>📈</span> Risk Factors</h3>
+                    <div id="factorsInfo">
+                        <!-- Risk factors will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h3><span>📍</span> Location Details</h3>
+                    <div id="locationInfo">
+                        <!-- Location information will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div id="recommendations" class="recommendations">
+                <!-- Recommendations will be inserted here -->
+            </div>
+            
+            <div class="btn-group mt-4">
+                <button onclick="downloadReport('text')" class="btn btn-success">
+                    <span>📄</span>
+                    Download Text Report
+                </button>
+                <button onclick="downloadReport('html')" class="btn btn-success">
+                    <span>🌐</span>
+                    Download HTML Report
+                </button>
+                <button onclick="window.print()" class="btn btn-outline">
+                    <span>🖨️</span>
+                    Print Report
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <span>ℹ️</span>
+                About the System
+            </h2>
+        </div>
+        
+        <div class="result-grid">
+            <div class="result-item">
+                <h3><span>🤖</span> AI-Powered Analysis</h3>
+                <p>Our system uses advanced machine learning algorithms trained on historical fire data combined with real-time weather information to provide accurate fire risk predictions.</p>
+            </div>
+            
+            <div class="result-item">
+                <h3><span>🌍</span> Global Coverage</h3>
+                <p>Access fire risk predictions for any location worldwide using our comprehensive weather data integration and geocoding services.</p>
+            </div>
+            
+            <div class="result-item">
+                <h3><span>📊</span> Comprehensive Reports</h3>
+                <p>Get detailed analysis including weather conditions, environmental factors, risk levels, and personalized safety recommendations.</p>
+            </div>
+            
+            <div class="result-item">
+                <h3><span>🛡️</span> Safety First</h3>
+                <p>Our primary goal is to help prevent wildfires and keep communities safe through early warning and education.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentAssessment = null;
+
+// Form submission
+document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const location = document.getElementById('location').value.trim();
+    if (!location) {
+        showError('Please enter a location');
+        return;
+    }
+    
+    showLoading();
+    hideResults();
+    
+    try {
+        const response = await fetch('/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `location=${encodeURIComponent(location)}`
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentAssessment = data.assessment;
+            displayResults(data);
+            showSuccess('Fire risk assessment completed successfully!');
+        } else {
+            showError(data.error || 'Failed to get prediction');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Network error. Please try again.');
+    } finally {
+        hideLoading();
+    }
+});
+
+function displayResults(data) {
+    const assessment = data.assessment;
+    
+    // Risk Summary
+    document.getElementById('riskSummary').innerHTML = `
+        <div class="text-center mb-4">
+            ${formatRiskLevel(assessment.risk_level)}
+            <h3>Fire Probability: ${assessment.probability}</h3>
+            <p class="text-muted">Assessment completed at ${assessment.timestamp}</p>
+            ${assessment.ml_used ? '<p><small>🤖 Enhanced with ML prediction: ' + assessment.ml_probability + '</small></p>' : ''}
+        </div>
+    `;
+    
+    // Weather Information
+    document.getElementById('weatherInfo').innerHTML = `
+        <div class="result-grid" style="grid-template-columns: 1fr 1fr;">
+            <div>
+                <strong>Temperature:</strong> ${assessment.weather.temperature}<br>
+                <strong>Humidity:</strong> ${assessment.weather.humidity}
+            </div>
+            <div>
+                <strong>Wind Speed:</strong> ${assessment.weather.wind_speed}<br>
+                <strong>Rainfall:</strong> ${assessment.weather.rainfall}
+            </div>
+        </div>
+    `;
+    
+    // Vegetation Information
+    document.getElementById('vegetationInfo').innerHTML = `
+        <div>
+            <strong>Type:</strong> ${assessment.vegetation.type}<br>
+            <strong>NDVI:</strong> ${assessment.vegetation.ndvi}<br>
+            <strong>Soil Moisture:</strong> ${assessment.vegetation.soil_moisture}<br>
+            <strong>Drought Index:</strong> ${assessment.vegetation.drought_index}
+        </div>
+    `;
+    
+    // Risk Factors
+    const factors = assessment.factors;
+    document.getElementById('factorsInfo').innerHTML = `
+        <div>
+            <div class="mb-2">
+                <strong>Temperature:</strong> ${createProgressBar(factors.temperature)}
+            </div>
+            <div class="mb-2">
+                <strong>Humidity:</strong> ${createProgressBar(factors.humidity)}
+            </div>
+            <div class="mb-2">
+                <strong>Wind:</strong> ${createProgressBar(factors.wind)}
+            </div>
+            <div class="mb-2">
+                <strong>Rainfall:</strong> ${createProgressBar(factors.rainfall)}
+            </div>
+            <div class="mb-2">
+                <strong>Vegetation:</strong> ${createProgressBar(factors.vegetation)}
+            </div>
+            <div class="mb-2">
+                <strong>Drought:</strong> ${createProgressBar(factors.drought)}
+            </div>
+        </div>
+    `;
+    
+    // Location Information
+    document.getElementById('locationInfo').innerHTML = `
+        <div>
+            <strong>City:</strong> ${assessment.location.city}<br>
+            ${assessment.location.state ? `<strong>State:</strong> ${assessment.location.state}<br>` : ''}
+            ${assessment.location.country ? `<strong>Country:</strong> ${assessment.location.country}<br>` : ''}
+            <strong>Coordinates:</strong> ${assessment.location.latitude.toFixed(4)}, ${assessment.location.longitude.toFixed(4)}
+        </div>
+    `;
+    
+    // Recommendations
+    const recommendationsHtml = assessment.recommendations.map(rec => `<li>${rec}</li>`).join('');
+    document.getElementById('recommendations').innerHTML = `
+        <h3><span>⚠️</span> Safety Recommendations</h3>
+        <ul>${recommendationsHtml}</ul>
+    `;
+    
+    showResults();
+}
+
+function clearForm() {
+    document.getElementById('location').value = '';
+    hideResults();
+    currentAssessment = null;
+}
+
+function downloadReport(format) {
+    if (!currentAssessment) {
+        showError('No assessment available to download');
+        return;
+    }
+    
+    // Create a temporary form to trigger download
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/predict`;
+    
+    // Add location input
+    const locationInput = document.createElement('input');
+    locationInput.type = 'hidden';
+    locationInput.name = 'location';
+    locationInput.value = currentAssessment.location.city;
+    form.appendChild(locationInput);
+    
+    // Submit form to regenerate assessment and get download links
+    // For now, we'll create a simple text download
+    const reportContent = generateTextReport(currentAssessment);
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fire_risk_report_${currentAssessment.location.city}_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function generateTextReport(assessment) {
+    return `
+FOREST FIRE RISK ASSESSMENT REPORT
+==================================
+
+Location: ${assessment.location.city}
+${assessment.location.state ? `State: ${assessment.location.state}\n` : ''}${assessment.location.country ? `Country: ${assessment.location.country}\n` : ''}
+Coordinates: ${assessment.location.latitude.toFixed(4)}, ${assessment.location.longitude.toFixed(4)}
+Assessment Date: ${assessment.timestamp}
+
+RISK SUMMARY
+------------
+Risk Level: ${assessment.risk_level}
+Fire Probability: ${assessment.probability}
+
+CURRENT CONDITIONS
+------------------
+Temperature: ${assessment.weather.temperature}
+Humidity: ${assessment.weather.humidity}
+Wind Speed: ${assessment.weather.wind_speed}
+Rainfall: ${assessment.weather.rainfall}
+
+ENVIRONMENTAL CONDITIONS
+------------------------
+Vegetation Type: ${assessment.vegetation.type}
+NDVI: ${assessment.vegetation.ndvi}
+Soil Moisture: ${assessment.vegetation.soil_moisture}
+Drought Index: ${assessment.vegetation.drought_index}
+
+SAFETY RECOMMENDATIONS
+----------------------
+${assessment.recommendations.map(rec => `- ${rec}`).join('\n')}
+
+Report generated by AI Forest Fire Prediction System
+Generated: ${new Date().toISOString()}
+    `.trim();
+}
+
+// Initialize tooltips and other UI elements
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any initialization code here
+    console.log('Prediction page loaded');
+});
+</script>
+{% endblock %}

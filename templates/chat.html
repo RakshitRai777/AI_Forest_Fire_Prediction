@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}AI Fire Assistant - Chat{% endblock %}
+
+{% block content %}
+<section class="container mt-4">
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>🤖 AI Fire Assistant</h2>
+            <p>Ask me anything about fire safety, prevention, and risk assessment</p>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-content">
+                    Hello! I'm your AI Fire Assistant. I can help you understand fire risk levels, provide safety recommendations, explain weather impacts, and offer guidance on fire prevention. How can I assist you today?
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <form id="chatForm">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Ask about fire safety, risk assessment, prevention..."
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit">
+                    <span>Send</span>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span>⚡</span>
+                Quick Actions
+            </h3>
+        </div>
+        
+        <div class="btn-group" style="flex-wrap: wrap;">
+            <button onclick="sendQuickMessage('What is fire risk?')" class="btn btn-outline">
+                📊 What is fire risk?
+            </button>
+            <button onclick="sendQuickMessage('How to prevent fires?')" class="btn btn-outline">
+                🛡️ Fire prevention tips
+            </button>
+            <button onclick="sendQuickMessage('What to do in emergency?')" class="btn btn-outline">
+                🚨 Emergency procedures
+            </button>
+            <button onclick="sendQuickMessage('How does weather affect fire risk?')" class="btn btn-outline">
+                🌤️ Weather impact
+            </button>
+            <button onclick="sendQuickMessage('Is it safe today?')" class="btn btn-outline">
+                ✅ Safety assessment
+            </button>
+            <button onclick="sendQuickMessage('What are fire danger levels?')" class="btn btn-outline">
+                🔥 Risk levels explained
+            </button>
+        </div>
+    </div>
+    
+    <!-- Help Section -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span>💡</span>
+                How to Use the Assistant
+            </h3>
+        </div>
+        
+        <div class="result-grid">
+            <div class="result-item">
+                <h4><span>❓</span> Ask Questions</h4>
+                <p>Type your questions about fire safety, risk assessment, prevention, or emergency procedures.</p>
+            </div>
+            
+            <div class="result-item">
+                <h4><span>📍</span> Location-Specific</h4>
+                <p>Ask about fire risk for specific locations or general safety guidelines.</p>
+            </div>
+            
+            <div class="result-item">
+                <h4><span>🌤️</span> Weather Related</h4>
+                <p>Inquire about how weather conditions like temperature, humidity, and wind affect fire risk.</p>
+            </div>
+            
+            <div class="result-item">
+                <h4><span>🚨</span> Emergency Help</h4>
+                <p>Get guidance on emergency procedures and evacuation planning.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sample Questions -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span>💬</span>
+                Sample Questions
+            </h3>
+        </div>
+        
+        <div style="columns: 2; column-gap: 2rem;">
+            <div style="break-inside: avoid; margin-bottom: 1rem;">
+                <strong>General Questions:</strong>
+                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                    <li>What causes forest fires?</li>
+                    <li>How are fire risk levels determined?</li>
+                    <li>What is the difference between high and extreme risk?</li>
+                    <li>How can I protect my home from wildfires?</li>
+                </ul>
+            </div>
+            
+            <div style="break-inside: avoid; margin-bottom: 1rem;">
+                <strong>Safety Questions:</strong>
+                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                    <li>What should I include in an emergency kit?</li>
+                    <li>How do I create an evacuation plan?</li>
+                    <li>When should I evacuate?</li>
+                    <li>What are the signs of approaching fire?</li>
+                </ul>
+            </div>
+            
+            <div style="break-inside: avoid; margin-bottom: 1rem;">
+                <strong>Weather Questions:</strong>
+                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                    <li>How does humidity affect fire risk?</li>
+                    <li>Why is wind dangerous during fires?</li>
+                    <li>What weather conditions increase fire risk?</li>
+                    <li>How does drought contribute to wildfires?</li>
+                </ul>
+            </div>
+            
+            <div style="break-inside: avoid; margin-bottom: 1rem;">
+                <strong>Prevention Questions:</strong>
+                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                    <li>How can I prevent accidental fires?</li>
+                    <li>What are safe burning practices?</li>
+                    <li>How should I maintain my property?</li>
+                    <li>What equipment should I have ready?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let isWaiting = false;
+
+// Chat form submission
+document.getElementById('chatForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const messageInput = document.getElementById('messageInput');
+    const message = messageInput.value.trim();
+    
+    if (!message || isWaiting) return;
+    
+    // Add user message to chat
+    addMessage('user', message);
+    messageInput.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    isWaiting = true;
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `message=${encodeURIComponent(message)}`
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            removeTypingIndicator();
+            addMessage('bot', data.response, data.timestamp);
+        } else {
+            removeTypingIndicator();
+            addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        removeTypingIndicator();
+        addMessage('bot', 'Network error. Please check your connection and try again.');
+    } finally {
+        isWaiting = false;
+    }
+});
+
+function addMessage(sender, content, timestamp = null) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const time = timestamp || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    messageDiv.innerHTML = `
+        <div class="message-content">${content}</div>
+        <div class="message-time">${time}</div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="message-content">
+            <span class="typing-dots">
+                <span>.</span><span>.</span><span>.</span>
+            </span>
+        </div>
+        <div class="message-time">typing...</div>
+    `;
+    
+    // Add typing animation
+    const style = document.createElement('style');
+    style.textContent = `
+        .typing-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+    `;
+    
+    if (!document.querySelector('style[data-typing]')) {
+        style.setAttribute('data-typing', 'true');
+        document.head.appendChild(style);
+    }
+    
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+function sendQuickMessage(message) {
+    if (isWaiting) return;
+    
+    document.getElementById('messageInput').value = message;
+    document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+}
+
+// Focus input on load
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('messageInput').focus();
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + Enter to send message
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+        }
+    });
+});
+
+// Auto-resize textarea if needed (for future expansion)
+function autoResize() {
+    const input = document.getElementById('messageInput');
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+}
+
+// Add enter key handling for multi-line support
+document.getElementById('messageInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+    }
+});
+</script>
+{% endblock %}
