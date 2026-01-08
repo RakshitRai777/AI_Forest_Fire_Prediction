@@ -63,7 +63,7 @@ AI-Forest-Fire-Prediction-System/
 
 1. **Download the Forest Fire Dataset**:
    - The dataset contains fire and smoke images with annotations
-   - [Download Link Here] - *Add your actual dataset download link*
+   - [https://www.kaggle.com/datasets/kutaykutlu/forest-fire]
    - Extract and place the `DataSet/` folder in the project root
 
 2. **Dataset Structure**:
